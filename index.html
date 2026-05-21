@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lịch Tập Thông Minh Theo Ngày</title>
+    <title>Lịch Trình Thông Minh: VSTEP & GYM</title>
     <style>
         *, *::before, *::after {
             box-sizing: border-box;
@@ -17,7 +17,7 @@
             line-height: 1.6;
         }
         .header-banner {
-            background: linear-gradient(135deg, #1a365d, #2a4365);
+            background: linear-gradient(135deg, #1a202c, #2d3748);
             color: #ffffff;
             padding: 30px 20px;
             text-align: center;
@@ -35,7 +35,6 @@
             font-size: 11pt;
             color: #cbd5e0;
         }
-        /* Bộ lọc ngày thủ công */
         .day-selector {
             display: flex;
             justify-content: center;
@@ -64,108 +63,112 @@
             box-shadow: 0 0 10px rgba(49, 130, 206, 0.5);
         }
         .container {
-            max-width: 800px;
+            max-width: 850px;
             margin: 20px auto;
             padding: 0 15px;
         }
-        .section-title {
-            font-size: 14pt;
-            color: #1a365d;
-            border-left: 5px solid #3182ce;
-            padding-left: 10px;
-            margin: 25px 0 15px 0;
-            font-weight: bold;
+        .grid-container {
+            display: none; /* Ẩn mặc định, điều khiển bằng JS */
+            grid-template-columns: 1fr;
+            gap: 20px;
         }
-        .card {
-            background-color: #ffffff;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            display: none; /* Ẩn mặc định, JS sẽ hiển thị */
+        @media (min-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr 1fr;
+            }
         }
-        .card.active-day {
-            display: block;
+        .grid-container.active-day {
+            display: grid;
             animation: fadeIn 0.5s ease;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .card-title {
-            font-size: 13pt;
+        .section-title {
+            font-size: 14pt;
+            color: #1a365d;
+            border-left: 5px solid #3182ce;
+            padding-left: 10px;
+            margin: 15px 0;
             font-weight: bold;
-            color: #2b6cb0;
-            margin-top: 0;
-            margin-bottom: 15px;
-            border-bottom: 2px dashed #e2e8f0;
-            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .card-title .day-tag {
-            background-color: #3182ce;
-            color: #ffffff;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 10pt;
-            margin-right: 8px;
-        }
-        .card-title .time-tag {
-            float: right;
+        .time-tag {
             font-size: 10pt;
             color: #718096;
             font-weight: normal;
-            margin-top: 4px;
         }
-        .exercise-list {
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .card.vstep-card {
+            border-top: 5px solid #3182ce;
+        }
+        .card.gym-card {
+            border-top: 5px solid #1a202c;
+        }
+        .card.rest-day-card {
+            background-color: #edf2f7;
+            border-top-color: #718096;
+        }
+        .task-list {
             margin: 0;
-            padding-left: 25px;
+            padding-left: 20px;
         }
-        .exercise-item {
-            margin-bottom: 10px;
+        .task-item {
+            margin-bottom: 12px;
             font-size: 11pt;
         }
-        .exercise-item strong {
+        .task-item strong {
             color: #1a202c;
         }
-        .exercise-tip {
+        .task-meta {
             font-size: 9.5pt;
             color: #4a5568;
             font-style: italic;
-            margin-left: 5px;
         }
-        .rest-day-card {
-            background-color: #edf2f7;
-            border-left: 5px solid #718096;
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 8.5pt;
+            font-weight: bold;
+            color: white;
+            margin-right: 5px;
+            text-transform: uppercase;
         }
-        .rest-day-card .card-title .day-tag {
-            background-color: #718096;
-        }
+        .badge.heavy { background-color: #e53e3e; }
+        .badge.medium { background-color: #dd6b20; }
+        .badge.light { background-color: #38a169; }
+        
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 15px 0;
-            font-size: 10pt;
+            margin: 10px 0;
+            font-size: 9.5pt;
             background: white;
         }
         th, td {
             border: 1px solid #cbd5e0;
-            padding: 10px 12px;
+            padding: 8px 10px;
             text-align: left;
         }
         th {
             background-color: #ebf8ff;
             color: #2c5282;
-            font-weight: bold;
         }
-        tr:nth-child(even) {
-            background-color: #f7fafc;
-        }
-        /* Cấu trúc lưới dưới chân cho nguyên tắc */
         .rules-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 20px;
+            margin-top: 30px;
         }
         @media (min-width: 768px) {
             .rules-grid {
@@ -176,7 +179,7 @@
             background: white;
             border-radius: 8px;
             padding: 20px;
-            border-top: 4px solid #dd6b20;
+            border-top: 4px solid #3182ce;
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
         .rule-box.nutrition {
@@ -189,27 +192,14 @@
             border-bottom: 1px solid #e2e8f0;
             padding-bottom: 6px;
         }
-        ul {
-            padding-left: 20px;
-            margin: 10px 0;
-        }
-        li {
-            margin-bottom: 6px;
-        }
-        .highlight-text {
-            color: #e53e3e;
-            font-weight: bold;
-        }
-        .clear { clear: both; }
     </style>
 </head>
 <body>
 
     <div class="header-banner">
-        <h1>Lịch Tập Hôm Nay</h1>
-        <p id="current-date-string">Đang xác định thời gian...</p>
+        <h1>Lịch Trình Hôm Nay</h1>
+        <p id="current-date-string">Đang cập nhật dữ liệu ngày...</p>
         
-        <!-- Thanh điều hướng nhanh nếu muốn xem trước ngày khác -->
         <div class="day-selector">
             <button class="day-btn" onclick="showDay(1)">CN</button>
             <button class="day-btn" onclick="showDay(2)">T2</button>
@@ -222,204 +212,263 @@
     </div>
 
     <div class="container">
-        
-        <div class="section-title">🏋️‍♂️ BÀI TẬP CHI TIẾT</div>
 
         <!-- THỨ 2 -->
-        <div class="card" id="workout-day-2">
-            <div class="card-title">
-                <span class="day-tag">THỨ 2</span> UPPER A — Ngực, Lưng, Vai, Tay
-                <span class="time-tag">⏱ ~70 phút</span>
-                <div class="clear"></div>
+        <div class="grid-container" id="day-container-2">
+            <div>
+                <div class="section-title">📘 TIẾNG ANH VSTEP <span class="time-tag">⏱ ~95 phút</span></div>
+                <div class="card vstep-card">
+                    <ul class="task-list">
+                        <li class="task-item"><span class="badge heavy">Heavy</span><strong>Writing Task 2:</strong> 40 phút <div class="task-meta">Bấm giờ viết 1 bài Essay (~250 từ) nghiêm túc.</div></li>
+                        <li class="task-item"><span class="badge medium">Medium</span><strong>Speaking Daily:</strong> 20 phút <div class="task-meta">Luyện câu ngắn Part 1, ghi âm + tự sửa ngập ngừng.</div></li>
+                        <li class="task-item"><span class="badge light">Light</span><strong>Listening Daily:</strong> 20 phút <div class="task-meta">Nghe BBC/VOA không sub + note keyword + shadowing.</div></li>
+                        <li class="task-item"><span class="badge light">Light</span><strong>Reading Daily:</strong> 15 phút <div class="task-meta">Đọc 1 đoạn ngắn, luyện phản xạ Skim/Scan từ khóa.</div></li>
+                    </ul>
+                </div>
             </div>
-            <ol class="exercise-list">
-                <li class="exercise-item"><strong>Incline Dumbbell Press:</strong> 3 × 8–10 <span class="exercise-tip">(Ngực trên)</span></li>
-                <li class="exercise-item"><strong>Lat Pulldown:</strong> 3 × 8–10 <span class="exercise-tip">(Xô)</span></li>
-                <li class="exercise-item"><strong>Chest Supported / Seated Cable Row:</strong> 3 × 10 <span class="exercise-tip">(Lưng giữa)</span></li>
-                <li class="exercise-item"><strong>Dumbbell Shoulder Press:</strong> 3 × 8–10 <span class="exercise-tip">(Vai trước + vai giữa)</span></li>
-                <li class="exercise-item"><strong>Cable Lateral Raise:</strong> 3 × 12–15 <span class="exercise-tip">(Vai giữa)</span></li>
-                <li class="exercise-item"><strong>Face Pull:</strong> 3 × 12–15 <span class="exercise-tip">(Vai sau + Cải thiện tư thế)</span></li>
-                <li class="exercise-item"><strong>Biceps Curl:</strong> 2 × 10–12</li>
-                <li class="exercise-item"><strong>Rope Pushdown:</strong> 2 × 10–12</li>
-            </ol>
+            <div>
+                <div class="section-title">🏋️‍♂️ GYM WORKOUT <span class="time-tag">⏱ ~70 phút</span></div>
+                <div class="card gym-card">
+                    <div style="font-weight:bold; color:#2b6cb0; margin-bottom:10px;">UPPER A — Ngực, Lưng, Vai, Tay</div>
+                    <ol class="task-list">
+                        <li class="task-item"><strong>Incline Dumbbell Press:</strong> 3 × 8–10 <span class="task-meta">(Ngực trên)</span></li>
+                        <li class="task-item"><strong>Lat Pulldown:</strong> 3 × 8–10 <span class="task-meta">(Xô)</span></li>
+                        <li class="task-item"><strong>Seated Cable Row:</strong> 3 × 10 <span class="task-meta">(Lưng giữa)</span></li>
+                        <li class="task-item"><strong>Dumbbell Shoulder Press:</strong> 3 × 8–10 <span class="task-meta">(Vai trước + giữa)</span></li>
+                        <li class="task-item"><strong>Cable Lateral Raise:</strong> 3 × 12–15 <span class="task-meta">(Vai giữa)</span></li>
+                        <li class="task-item"><strong>Face Pull:</strong> 3 × 12–15 <span class="task-meta">(Vai sau)</span></li>
+                        <li class="task-item"><strong>Biceps Curl + Rope Pushdown:</strong> 2 × 10–12</li>
+                    </ol>
+                </div>
+            </div>
         </div>
 
         <!-- THỨ 3 -->
-        <div class="card" id="workout-day-3">
-            <div class="card-title">
-                <span class="day-tag">THỨ 3</span> LOWER A — Chân, Đùi, Core
-                <span class="time-tag">⏱ ~60–70 phút</span>
-                <div class="clear"></div>
+        <div class="grid-container" id="day-container-3">
+            <div>
+                <div class="section-title">📘 TIẾNG ANH VSTEP <span class="time-tag">⏱ ~75 phút</span></div>
+                <div class="card vstep-card">
+                    <ul class="task-list">
+                        <li class="task-item"><span class="badge heavy">Heavy</span><strong>Listening Focus:</strong> 40 phút <div class="task-meta">Giải đề Listening thực tế (Part 1 hoặc 2), dò lỗi sai.</div></li>
+                        <li class="task-item"><span class="badge medium">Medium</span><strong>Speaking Daily:</strong> 20 phút <div class="task-meta">Luyện phản xạ câu hỏi ngắn giao tiếp xã hội.</div></li>
+                        <li class="task-item"><span class="badge light">Light</span><strong>Reading Daily:</strong> 15 phút <div class="task-meta">Skim & Scan bắt từ khóa nhanh, không dịch từng câu.</div></li>
+                    </ul>
+                </div>
             </div>
-            <ol class="exercise-list">
-                <li class="exercise-item"><strong>Leg Press:</strong> 3 × 10</li>
-                <li class="exercise-item"><strong>Romanian Deadlift (RDL):</strong> 3 × 8–10 <span class="exercise-tip">(Đùi sau + mông + lưng dưới)</span></li>
-                <li class="exercise-item"><strong>Leg Curl:</strong> 3 × 10–12</li>
-                <li class="exercise-item"><strong>Leg Extension:</strong> 2 × 12</li>
-                <li class="exercise-item"><strong>Standing Calf Raise:</strong> 3 × 12–15</li>
-                <li class="exercise-item"><strong>Dumbbell Side Bend:</strong> 3 × 12(x2)</li>
-                <li class="exercise-item"><strong>Hanging Knee Raise:</strong> 3 set</li>
-                <li class="exercise-item"><strong>Plank:</strong> 3 set</li>
-            </ol>
+            <div>
+                <div class="section-title">🏋️‍♂️ GYM WORKOUT <span class="time-tag">⏱ ~60-70 phút</span></div>
+                <div class="card gym-card">
+                    <div style="font-weight:bold; color:#2b6cb0; margin-bottom:10px;">LOWER A — Chân, Đùi, Core</div>
+                    <ol class="task-list">
+                        <li class="task-item"><strong>Leg Press:</strong> 3 × 10</li>
+                        <li class="task-item"><strong>Romanian Deadlift (RDL):</strong> 3 × 8–10 <span class="task-meta">(Đùi sau, mông)</span></li>
+                        <li class="task-item"><strong>Leg Curl:</strong> 3 × 10–12</li>
+                        <li class="task-item"><strong>Leg Extension:</strong> 2 × 12</li>
+                        <li class="task-item"><strong>Standing Calf Raise:</strong> 3 × 12–15</li>
+                        <li class="task-item"><strong>Side Bend + Hanging Knee Raise:</strong> 3 × 12 / 3 set</li>
+                        <li class="task-item"><strong>Plank:</strong> 3 set vững vàng</li>
+                    </ol>
+                </div>
+            </div>
         </div>
 
         <!-- THỨ 4 -->
-        <div class="card rest-day-card" id="workout-day-4">
-            <div class="card-title">
-                <span class="day-tag">THỨ 4</span> ACTIVE RECOVERY & BỤNG TẠI NHÀ
-                <span class="time-tag">Nghỉ ngơi chủ động</span>
-                <div class="clear"></div>
+        <div class="grid-container" id="day-container-4">
+            <div>
+                <div class="section-title">📘 TIẾNG ANH VSTEP <span class="time-tag">⏱ ~65 phút</span></div>
+                <div class="card vstep-card">
+                    <ul class="task-list">
+                        <li class="task-item"><span class="badge heavy">Heavy</span><strong>Speaking Focus:</strong> 30 phút <div class="task-meta">Luyện bài nói dài (Part 2 giải pháp hoặc Part 3 chủ đề).</div></li>
+                        <li class="task-item"><span class="badge light">Light</span><strong>Listening Daily:</strong> 20 phút <div class="task-meta">Nghe bản tin, duy trì thói quen ghi nhận keyword.</div></li>
+                        <li class="task-item"><span class="badge light">Light</span><strong>Reading Daily:</strong> 15 phút <div class="task-meta">Đọc 1 đoạn văn ngắn trên Breaking News English.</div></li>
+                    </ul>
+                </div>
             </div>
-            <p><strong>Hoạt động nhẹ:</strong> Đi bộ nhanh 30 phút, đạp xe thư giãn hoặc giãn cơ toàn thân. Không HIIT nặng.</p>
-            <p style="font-weight: bold; margin-bottom: 5px; color: #4a5568;">📍 Bài tập bụng giữa tuần (Khi cơ thể còn sung sức):</p>
-            <table>
-                <thead>
-                    <tr><th>Bài tập</th><th>Khối lượng thực hiện</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td><strong>Plank</strong></td><td>3 × 45 giây</td></tr>
-                    <tr><td><strong>Leg Raise</strong></td><td>3 × 12 reps</td></tr>
-                    <tr><td><strong>Ab Wheel</strong></td><td>3 × 6–10 reps</td></tr>
-                    <tr><td><strong>Mountain Climber</strong></td><td>3 × 30 giây</td></tr>
-                </tbody>
-            </table>
+            <div>
+                <div class="section-title">🏋️‍♂️ GYM WORKOUT <span class="time-tag">Nghỉ ngơi chủ động</span></div>
+                <div class="card gym-card rest-day-card">
+                    <div style="font-weight:bold; color:#4a5568; margin-bottom:10px;">ACTIVE RECOVERY & BỤNG TẠI NHÀ</div>
+                    <p style="font-size: 10pt; margin-top:0;">Đi bộ nhanh 30 phút, đạp xe hoặc giãn cơ toàn thân nhẹ nhàng.</p>
+                    <table>
+                        <thead><tr><th>Bài tập bụng</th><th>Khối lượng</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Plank</strong></td><td>3 × 45 giây</td></tr>
+                            <tr><td><strong>Leg Raise</strong></td><td>3 × 12 reps</td></tr>
+                            <tr><td><strong>Ab Wheel</strong></td><td>3 × 6–10 reps</td></tr>
+                            <tr><td><strong>Mountain Climber</strong></td><td>3 × 30 giây</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <!-- THỨ 5 -->
-        <div class="card" id="workout-day-5">
-            <div class="card-title">
-                <span class="day-tag">THỨ 5</span> UPPER B — Biến tấu góc độ cơ
-                <span class="time-tag">⏱ ~70 phút</span>
-                <div class="clear"></div>
+        <div class="grid-container" id="day-container-5">
+            <div>
+                <div class="section-title">📘 TIẾNG ANH VSTEP <span class="time-tag">⏱ ~110 phút</span></div>
+                <div class="card vstep-card">
+                    <ul class="task-list">
+                        <li class="task-item"><span class="badge heavy">Heavy</span><strong>Writing Task 2:</strong> 40 phút <div class="task-meta">Viết bài Essay với một chủ đề mới hoàn toàn.</div></li>
+                        <li class="task-item"><span class="badge medium">Medium</span><strong>Speaking Daily:</strong> 20 phút <div class="task-meta">Luyện nói, tối ưu hóa các phần lặp từ, sửa lỗi dịch.</div></li>
+                        <li class="task-item"><span class="badge light">Light</span><strong>Listening Daily:</strong> 20 phút <div class="task-meta">Tập trung note-taking các bài nghe hội thoại ngắn.</div></li>
+                        <li class="task-item"><span class="badge light">Light</span><strong>Grammar/Vocab:</strong> 15 phút <div class="task-meta">Gom cấu trúc câu nâng cao để áp dụng trực tiếp vào bài viết.</div></li>
+                        <li class="task-item"><span class="badge light">Light</span><strong>Reading Daily:</strong> 15 phút <div class="task-meta">Duy trì thói quen đọc lướt bắt ý chính.</div></li>
+                    </ul>
+                </div>
             </div>
-            <ol class="exercise-list">
-                <li class="exercise-item"><strong>Flat Dumbbell Press:</strong> 3 × 8–10</li>
-                <li class="exercise-item"><strong>Seated Cable Row:</strong> 3 × 10</li>
-                <li class="exercise-item"><strong>Assisted Pull-up / Pulldown:</strong> 3 × 8–10</li>
-                <li class="exercise-item"><strong>Machine Shoulder Press:</strong> 3 × 10</li>
-                <li class="exercise-item"><strong>Dumbbell / Cable Lateral Raise:</strong> 3 × 12–15</li>
-                <li class="exercise-item"><strong>Reverse Pec Deck:</strong> 3 × 12–15 <span class="exercise-tip">(Vai sau)</span></li>
-                <li class="exercise-item"><strong>Hammer Curl:</strong> 2 × 10–12</li>
-                <li class="exercise-item"><strong>Overhead Tricep Extension:</strong> 2 × 10–12</li>
-            </ol>
+            <div>
+                <div class="section-title">🏋️‍♂️ GYM WORKOUT <span class="time-tag">⏱ ~70 phút</span></div>
+                <div class="card gym-card">
+                    <div style="font-weight:bold; color:#2b6cb0; margin-bottom:10px;">UPPER B — Biến tấu góc độ cơ</div>
+                    <ol class="task-list">
+                        <li class="task-item"><strong>Flat Dumbbell Press:</strong> 3 × 8–10</li>
+                        <li class="task-item"><strong>Seated Cable Row:</strong> 3 × 10</li>
+                        <li class="task-item"><strong>Assisted Pull-up / Pulldown:</strong> 3 × 8–10</li>
+                        <li class="task-item"><strong>Machine Shoulder Press:</strong> 3 × 10</li>
+                        <li class="task-item"><strong>Dumbbell / Cable Lateral Raise:</strong> 3 × 12–15</li>
+                        <li class="task-item"><strong>Reverse Pec Deck:</strong> 3 × 12–15 <span class="task-meta">(Vai sau)</span></li>
+                        <li class="task-item"><strong>Hammer Curl + Overhead Tricep Ext:</strong> 2 × 10–12</li>
+                    </ol>
+                </div>
+            </div>
         </div>
 
         <!-- THỨ 6 -->
-        <div class="card" id="workout-day-6">
-            <div class="card-title">
-                <span class="day-tag">THỨ 6</span> LOWER B — Chân, Đùi, Core sâu
-                <span class="time-tag">⏱ ~60–70 phút</span>
-                <div class="clear"></div>
+        <div class="grid-container" id="day-container-6">
+            <div>
+                <div class="section-title">📘 TIẾNG ANH VSTEP <span class="time-tag">⏱ ~80 phút</span></div>
+                <div class="card vstep-card">
+                    <ul class="task-list">
+                        <li class="task-item"><span class="badge heavy">Heavy</span><strong>Reading Test:</strong> 20 phút <div class="task-meta">Giải bài đọc dài VSTEP (10-15 câu trắc nghiệm) luyện sức bền.</div></li>
+                        <li class="task-item"><span class="badge medium">Medium</span><strong>Writing Task 1:</strong> 20 phút <div class="task-meta">Viết thư/Email, ép bản thân kiểm soát đúng thời gian phòng thi.</div></li>
+                        <li class="task-item"><span class="badge medium">Medium</span><strong>Speaking Daily:</strong> 20 phút <div class="task-meta">Ghi âm nói câu ngắn và rà soát lỗi phát âm.</div></li>
+                        <li class="task-item"><span class="badge light">Light</span><strong>Listening Daily:</strong> 20 phút <div class="task-meta">Nghe podcast ngắn giữ cảm giác âm tốt.</div></li>
+                    </ul>
+                </div>
             </div>
-            <ol class="exercise-list">
-                <li class="exercise-item"><strong>Goblet Squat / Hack Squat:</strong> 3 × 8–10</li>
-                <li class="exercise-item"><strong>Romanian Deadlift (RDL):</strong> 3 × 8</li>
-                <li class="exercise-item"><strong>Bulgarian Split Squat:</strong> 2 × 10 <span class="exercise-tip">(Mỗi bên chân)</span></li>
-                <li class="exercise-item"><strong>Leg Curl:</strong> 3 × 10–12</li>
-                <li class="exercise-item"><strong>Seated Calf Raise:</strong> 3 × 15</li>
-                <li class="exercise-item"><strong>Dumbbell Side Bend:</strong> 3 × 12(x2)</li>
-                <li class="exercise-item"><strong>Hanging Knee Raise:</strong> 3 set</li>
-                <li class="exercise-item"><strong>Plank:</strong> 3 set</li>
-            </ol>
+            <div>
+                <div class="section-title">🏋️‍♂️ GYM WORKOUT <span class="time-tag">⏱ ~60-70 phút</span></div>
+                <div class="card gym-card">
+                    <div style="font-weight:bold; color:#2b6cb0; margin-bottom:10px;">LOWER B — Chân, Đùi, Core sâu</div>
+                    <ol class="task-list">
+                        <li class="task-item"><strong>Goblet Squat / Hack Squat:</strong> 3 × 8–10</li>
+                        <li class="task-item"><strong>Romanian Deadlift (RDL):</strong> 3 × 8</li>
+                        <li class="task-item"><strong>Bulgarian Split Squat:</strong> 2 × 10 <span class="task-meta">(Mỗi bên chân)</span></li>
+                        <li class="task-item"><strong>Leg Curl:</strong> 3 × 10–12</li>
+                        <li class="task-item"><strong>Seated Calf Raise:</strong> 3 × 15</li>
+                        <li class="task-item"><strong>Side Bend + Hanging Knee Raise:</strong> 3 × 12 / 3 set</li>
+                        <li class="task-item"><strong>Plank:</strong> 3 set</li>
+                    </ol>
+                </div>
+            </div>
         </div>
 
         <!-- THỨ 7 -->
-        <div class="card rest-day-card" id="workout-day-7">
-            <div class="card-title">
-                <span class="day-tag">THỨ 7</span> OPTIONAL DAY — Phục hồi tự do
-                <div class="clear"></div>
+        <div class="grid-container" id="day-container-7">
+            <div>
+                <div class="section-title">📘 TIẾNG ANH VSTEP <span class="time-tag">⏱ ~70 phút</span></div>
+                <div class="card vstep-card">
+                    <ul class="task-list">
+                        <li class="task-item"><span class="badge heavy">MOCK</span><strong>Mini Mock Test:</strong> 60-70 phút
+                            <div class="task-meta">
+                                • Lựa chọn 1: Làm trọn vẹn cả Task 1 và Task 2 viết liên tục trong 60 phút.<br>
+                                • Lựa chọn 2: Tự mở đề mock nói liên tục cả 3 Part trong 12 phút (ghi âm).
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <p><strong>Trạng thái khỏe mạnh:</strong> Thực hiện Cardio nhẹ Zone 2, chơi thể thao giải trí hoặc tập bổ trợ độ linh hoạt khớp (Mobility).</p>
-            <p><strong>Trạng thái mệt mỏi:</strong> <span class="highlight-text">Nghỉ ngơi hoàn toàn</span>. Hãy lắng nghe hệ thần kinh của bạn.</p>
+            <div>
+                <div class="section-title">🏋️‍♂️ GYM WORKOUT <span class="time-tag">Phục hồi tự do</span></div>
+                <div class="card gym-card rest-day-card">
+                    <div style="font-weight:bold; color:#4a5568; margin-bottom:10px;">OPTIONAL DAY</div>
+                    <p><strong>Cơ thể khỏe mạnh:</strong> Tập Cardio nhẹ nhàng Zone 2, chơi thể thao hoặc tập bài bổ trợ linh hoạt khớp (Mobility).</p>
+                    <p><strong>Cơ thể mỏi mệt:</strong> <span style="color:#e53e3e; font-weight:bold;">Nghỉ ngơi hoàn toàn</span> để hồi phục hệ thần kinh.</p>
+                </div>
+            </div>
         </div>
 
         <!-- CHỦ NHẬT -->
-        <div class="card rest-day-card" id="workout-day-1">
-            <div class="card-title">
-                <span class="day-tag">CHỦ NHẬT</span> NGHỈ TOÀN DIỆN & CORE STABILITY
-                <span class="time-tag">Phục hồi = Phát triển</span>
-                <div class="clear"></div>
+        <div class="grid-container" id="day-container-1">
+            <div>
+                <div class="section-title">📘 TIẾNG ANH VSTEP <span class="time-tag">⏱ ~85 phút</span></div>
+                <div class="card vstep-card">
+                    <ul class="task-list">
+                        <li class="task-item"><span class="badge medium">Medium</span><strong>Review & Sửa bài:</strong> 30 phút <div class="task-meta">Mở lại các bài viết/file ghi âm cũ để tìm lỗi ngữ pháp, gom từ hay.</div></li>
+                        <li class="task-item"><span class="badge light">Light</span><strong>Listening Daily:</strong> 20 phút <div class="task-meta">Nghe nội dung tiếng Anh giải trí hoặc xem video không sub tùy thích.</div></li>
+                        <li class="task-item"><span class="badge light">Light</span><strong>Reading Daily:</strong> 15 phút <div class="task-meta">Đọc báo hoặc tin tức ngắn nhẹ nhàng để giữ nhịp độ đọc lướt.</div></li>
+                    </ul>
+                </div>
             </div>
-            <p style="margin-bottom: 5px;">Hôm nay là ngày nghỉ ngơi phục hồi sợi cơ. Chỉ tập trung tập bụng nhẹ nhàng thiên về khả năng kiểm soát độ vững lõi cơ.</p>
-            <table>
-                <thead>
-                    <tr><th>Bài tập Core Chủ Nhật</th><th>Lượng tập</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td><strong>Bicycle Crunch</strong></td><td>3 × 20 reps</td></tr>
-                    <tr><td><strong>Side Plank</strong></td><td>3 × 30 giây</td></tr>
-                    <tr><td><strong>Ab Wheel</strong></td><td>2–3 × 6 reps</td></tr>
-                    <tr><td><strong>Plank</strong></td><td>3 × 1 phút</td></tr>
-                </tbody>
-            </table>
+            <div>
+                <div class="section-title">🏋️‍♂️ GYM WORKOUT <span class="time-tag">Phục hồi = Phát triển</span></div>
+                <div class="card gym-card rest-day-card">
+                    <div style="font-weight:bold; color:#4a5568; margin-bottom:10px;">NGHỈ TOÀN DIỆN & CORE STABILITY</div>
+                    <p style="font-size:10pt; margin-top:0;">Hôm nay các nhóm cơ lớn nghỉ ngơi. Chỉ thực hiện bài tập lõi bụng nhẹ để tăng độ vững ổn định cho cột sống.</p>
+                    <table>
+                        <thead><tr><th>Bài tập Core CN</th><th>Lượng tập</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Bicycle Crunch</strong></td><td>3 × 20 reps</td></tr>
+                            <tr><td><strong>Side Plank</strong></td><td>3 × 30 giây</td></tr>
+                            <tr><td><strong>Ab Wheel</strong></td><td>2–3 × 6 reps</td></tr>
+                            <tr><td><strong>Plank</strong></td><td>3 × 1 phút</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
-        <div class="section-title">🔥 NGUYÊN TẮC LUÔN ÁP DỤNG</div>
-        
+        <!-- NGUYÊN TẮC LUÔN ÁP DỤNG -->
         <div class="rules-grid">
-            <!-- CỘT NGUYÊN TẮC TẬP -->
             <div class="rule-box">
-                <h3>📈 Progressive Overload & Tempo</h3>
-                <p><strong>Tăng tạ tịnh tiến:</strong> Khi bạn hoàn thành mức tạ cũ ở số rep tối đa (Ví dụ: 10kg × 10 reps) một cách thoải mái, tuần sau hãy nâng nhẹ mức tạ.</p>
-                <p><strong>Tempo (Nhịp độ):</strong></p>
-                <ul>
-                    <li>Thả tạ chậm có kiểm soát: 2–3 giây.</li>
-                    <li>Đẩy/Kéo dứt khoát: ~1 giây.</li>
-                </ul>
-                <p><strong>Thời gian nghỉ:</strong> Bài Compound nghỉ 90–120s; bài Cô lập nghỉ 45–75s.</p>
+                <h3>📈 Kỷ Luật VSTEP & Gym</h3>
+                <p><strong>VSTEP Speaking:</strong> Đi thẳng vào vấn đề theo template. Tuyệt đối không dịch thầm từ Việt sang Anh trong đầu.</p>
+                <p><strong>Gym Overload:</strong> Đảm bảo thời gian thả tạ có kiểm soát từ 2-3 giây. Nghỉ từ 90-120s đối với các bài tập nặng (Compound).</p>
             </div>
-
-            <!-- CỘT DINH DƯỠNG -->
             <div class="rule-box nutrition">
-                <h3>🍽 Chế Độ Ăn Uống Recomp (Hôm Nay)</h3>
-                <p><strong>Protein mục tiêu:</strong> <span class="highlight-text">120–140g</span> bổ sung từ ức gà, trứng, thịt bò, cá hoặc Whey.</p>
-                <p><strong>Năng lượng (Calo):</strong> Ăn quanh mức giữ cân (Maintenance). Nếu muốn cơ thể gọn gàng, săn chắc hơn thì thâm hụt (Deficit) cực kỳ nhẹ.</p>
-                <p><strong>Pre-workout:</strong> Ăn tinh bột (Carb) dễ hấp thụ trước tập 45–60 phút (1 quả chuối, vài lát bánh mì gối hoặc một bát cơm nhỏ).</p>
-                <p><strong>Giấc ngủ:</strong> Đảm bảo ngủ từ 7–8 tiếng để tối ưu tổng hợp protein cơ bắp.</p>
+                <h3>🍽 Dinh Dưỡng Cơ Bản</h3>
+                <p><strong>Mục tiêu:</strong> Nạp khoảng 120–140g Protein sạch mỗi ngày. Ăn nhẹ một lượng tinh bột hấp thụ nhanh trước khi tập khoảng 45–60 phút để tràn đầy năng lượng.</p>
             </div>
         </div>
 
     </div>
 
     <script>
-        // Hàm hiển thị ngày tập tương ứng
         function showDay(dayIndex) {
-            // Ẩn toàn bộ các thẻ ngày tập
+            // Ẩn tất cả các container của các ngày
             for (let i = 1; i <= 7; i++) {
-                const card = document.getElementById('workout-day-' + i);
-                if (card) card.classList.remove('active-day');
+                const container = document.getElementById('day-container-' + i);
+                if (container) container.classList.remove('active-day');
             }
             
-            // Bỏ kích hoạt các nút bấm trên thanh menu
+            // Xóa trạng thái active trên thanh chọn ngày
             const buttons = document.querySelectorAll('.day-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
 
-            // Hiển thị thẻ của ngày được chọn
-            const targetCard = document.getElementById('workout-day-' + dayIndex);
-            if (targetCard) {
-                targetCard.classList.add('active-day');
+            // Hiển thị nội dung ngày được chọn
+            const targetContainer = document.getElementById('day-container-' + dayIndex);
+            if (targetContainer) {
+                targetContainer.classList.add('active-day');
             }
 
-            // Đánh dấu nút bấm tương ứng thành active
-            // Mảng ánh xạ nút bấm: index 0=CN, 1=T2, 2=T3...
+            // Kích hoạt nút bấm tương ứng (0: CN, 1: T2, 2: T3...)
             let btnIndex = dayIndex === 1 ? 0 : dayIndex - 1;
             if(buttons[btnIndex]) {
                 buttons[btnIndex].classList.add('active');
             }
         }
 
-        // Tự động nhận diện thứ hiện tại khi vừa mở trang web
+        // Tự động nhận diện thứ thực tế lúc mở trang
         const currentDate = new Date();
-        const currentDay = currentDate.getDay(); // 0: Chủ Nhật, 1: Thứ 2, 2: Thứ 3...
+        const currentDay = currentDate.getDay(); // 0: Chủ Nhật, 1: Thứ 2...
         
-        // Đổi giá trị trả về của JS khớp với ID của hệ thống thẻ (1: CN, 2: T2, 3: T3...)
+        // Ánh xạ sang cấu trúc ID (1: CN, 2: T2, 3: T3...)
         const mappedDay = currentDay === 0 ? 1 : currentDay + 1;
 
-        // Hiển thị chuỗi ngày tháng thực tế lên Header
         const dayNames = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
-        document.getElementById('current-date-string').innerText = "Hôm nay là " + dayNames[currentDay] + " — Hệ thống tự động tối ưu hóa lịch tập cho bạn";
+        document.getElementById('current-date-string').innerText = "Hôm nay là " + dayNames[currentDay] + " — Lịch trình học tập và rèn luyện được đồng bộ hóa";
 
-        // Chạy kích hoạt ngày hiện tại
+        // Kích hoạt hiển thị tự động ngày hiện hành
         showDay(mappedDay);
     </script>
 </body>
